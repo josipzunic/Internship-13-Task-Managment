@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS tasks (
     task_id SERIAL PRIMARY KEY,
-    column_id INT REFERENCES "columns"(column_id),
-    user_id INT REFERENCES users(user_id),
+    column_id INT NOT NULL REFERENCES "columns"(column_id),
+    user_id INT NOT NULL REFERENCES users(user_id),
     task_title VARCHAR(100) NOT NULL,
     task_description VARCHAR(500),
     task_start_date TIMESTAMP,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     task_priority task_priority_enum,
     task_type task_type_enum,
     task_is_archived BOOLEAN DEFAULT FALSE,
-    task_archived_at TIMESTAMP,
+    task_archived_at TIMESTAMP DEFAULT NULL,
     task_created_at TIMESTAMP DEFAULT NOW(),
     task_updated_at TIMESTAMP DEFAULT NOW()
 );
