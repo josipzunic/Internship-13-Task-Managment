@@ -6,11 +6,11 @@ const pool = new Pool({
 });
 
 const columnNames = {
-  blocked: "Blocked",
-  todo: "Todo",
-  inProgress: "In progress",
-  inReview: "In review",
-  done: "Done",
+  blocked: "blocked",
+  todo: "todo",
+  inProgress: "in progress",
+  inReview: "in review",
+  done: "done",
 };
 
 const taskPriority = {
@@ -150,10 +150,10 @@ const seed = async () => {
 
 seed()
   .then(() => {
-    console.log("Seeded columns");
+    console.log("Columns, users, and tasks seeded");
     return pool.end();
   })
   .catch((error) => {
-    console.error("Failed to seed columns", error);
+    console.error("Failed to seed tables", error);
     return pool.end().finally(() => process.exit(1));
   });
