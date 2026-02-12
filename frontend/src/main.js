@@ -1,2 +1,2 @@
-import { tasksApi } from "./api/taskApi.mock.js";
-window.tasksApi = tasksApi;
+import { mountBoardPage } from "./pages/boardPage.js";
+mountBoardPage();
