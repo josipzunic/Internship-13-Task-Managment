@@ -1,0 +1,42 @@
+.task-card {
+   background: var(--color-light);
+   color: var(--color-purple-dark);
+   border-radius: 16px;
+   padding: 8px 16px;
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+}
+
+.task-title {
+   font-size: 20px;
+   font-style: normal;
+   font-weight: 700;
+   line-height: normal;
+}
+
+.line-horizontal {
+   background-color: var(--color-purple-dark);
+   height: 2px;
+   width: 100%;
+}
+
+.task-meta {
+   display: flex;
+   flex-direction: column;
+   align-items: start;
+   gap: 2px;
+}
+
+.info-line {
+   display: flex;
+   flex-direction: row;
+   gap: 8px;
+   align-items: center;
+}
+
+.line-vertical {
+   background-color: var(--color-purple-dark);
+   height: 16px;
+   width: 1px;
+}

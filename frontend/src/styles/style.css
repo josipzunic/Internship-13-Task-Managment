@@ -2,16 +2,4 @@
 @import "./components.css";
 @import "./layout.css";
 @import "./column.css";
-
-.task-card {
-    background: var(--card);
-    color: var(--text-dark);
-    border-radius: 12px;
-    padding: 12px;
-    border: 1px solid rgba(0,0,0,.08);
-}
-
-.task-title {
-    margin: 0 0 8px;
-    font-weight: 800;
-}
+@import "./task.css"
