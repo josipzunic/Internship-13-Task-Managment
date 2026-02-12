@@ -7,18 +7,25 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 const startServer = async () => {
-    await database.query("SELECT 1");
-    console.log("Database connected");
+  await database.query("SELECT 1");
+  console.log("Database connected");
 
-    await initDatabase();
-    console.log("Database initialized");
+  await initDatabase();
+  console.log("Database initialized");
 
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
 };
 
-startServer().catch((error) => {
-    console.error("Failed to start server: ", error);
-    process.exit(1);
+startServer().catch(async (error) => {
+  console.error("Failed to start server: ", error.message);
+  console.error("Stack trace: ", error.stack);
+
+  try {
+    await database.end();
+  } catch (error) {
+    console.error("Failed to close database: ", error);
+  }
+  process.exit(1);
 });
