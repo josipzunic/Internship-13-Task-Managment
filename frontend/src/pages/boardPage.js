@@ -32,6 +32,10 @@ export async function mountBoardPage(){
                     await tasksApi.moveColumn(key, direction);
                     await render();
                 },
+                onDropTask: async (taskId, targetStatus) => {
+                    await tasksApi.updateTask(taskId, {status: targetStatus});
+                    await render();
+                },
             });
 
             colTasks.forEach((t) => {
