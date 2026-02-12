@@ -7,7 +7,7 @@ export function renderColumn(column, {count, onMove}){
     wrap.innerHTML = `
         <div class="column-header">
             <div class="column-title">
-                <span>${column.title}</span>
+                <span>${column.label}</span>
                 <span class="task-count">${count}</span>
             </div>
             <div class="column-actions">
