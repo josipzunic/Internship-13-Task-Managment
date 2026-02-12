@@ -3,22 +3,6 @@
 @import "./layout.css";
 @import "./column.css";
 
-.column-actions .btn {
-    border: 0;
-    background: rgba(255,255,255,.2);
-    color: #fff;
-    border-radius: 10px;
-    padding: 6px 8px;
-    cursor: pointer;
-}
-
-.column-body {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    min-height: 60px;
-}
-
 .task-card {
     background: var(--card);
     color: var(--text-dark);

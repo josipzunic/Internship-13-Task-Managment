@@ -12,7 +12,7 @@ export function renderColumn(column, {count, onMove}){
                 <button class="arrow btn-move-right" title="Move right"><img src="./src/assets/arrow-right.svg" alt="" class="icon"></button>
             </div>
             <div class="task-counter">
-                <span>Number of tasks:</span>
+                <span class="body-main">Number of tasks:</span>
                 <span class="tag">${count}</span>
             </div>
         </div>

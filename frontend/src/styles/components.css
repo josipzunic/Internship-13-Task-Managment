@@ -22,6 +22,11 @@
    border-radius: 8px;
    background-color: var(--color-light);
    border: none;
+   cursor: pointer;
+}
+
+.arrow:hover {
+   background-color: var(--hover-light);
 }
 
 .icon {
@@ -38,4 +43,9 @@
    line-height: normal;
    border: none;
    border-radius: 32px;
+   cursor: pointer;
+}
+
+.button-main:hover {
+   background-color: var(--hover-light);
 }
