@@ -15,11 +15,11 @@ export function renderColumn(column, {count, onMove}){
                 <button class="btn btn-move-right" title="Move right">→</button>
             </div>
         </div>
-        div class="column-body"></div>
+        <div class="column-body"></div>
     `;
-
+    const body = wrap.querySelector(".column-body");
     wrap.querySelector(".btn-move-left").addEventListener("click", () => onMove(column.key, "left"));
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
-    return wrap;
+    return {wrap, body};
 
 }
