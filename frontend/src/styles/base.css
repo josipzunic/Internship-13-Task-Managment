@@ -1,0 +1,18 @@
+:root {
+   --color-purple-dark: #241860;
+   --color-purple-light: #5451D6;
+   --color-light: #E3F1FF;
+}
+
+* { 
+   box-sizing: border-box; 
+   padding: 0;
+   margin: 0;
+}
+
+body {
+   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+   background: var(--color-purple-dark);
+   color: var(--color-light);
+   padding: 40px;
+}

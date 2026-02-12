@@ -1,0 +1,32 @@
+.column {
+    background: var(--color-purple-light);
+    border-radius: 16px;
+    padding: 16px;
+    min-width: 259px;
+    border: 0.4px solid var(--color-light);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.column-header {
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-title {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+}
+
+.column-label {
+   color: var(--color-light);
+   font-size: 24px;
+   font-style: normal;
+   font-weight: 700;
+   line-height: normal;
+}

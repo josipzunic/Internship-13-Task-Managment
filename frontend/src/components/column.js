@@ -7,12 +7,13 @@ export function renderColumn(column, {count, onMove}){
     wrap.innerHTML = `
         <div class="column-header">
             <div class="column-title">
-                <span>${column.label}</span>
-                <span class="task-count">${count}</span>
+                <button class="arrow btn-move-left" title="Move left"><img src="./src/assets/arrow-left.svg" alt="" class="icon"></button>
+                <span class="column-label">${column.label}</span>
+                <button class="arrow btn-move-right" title="Move right"><img src="./src/assets/arrow-right.svg" alt="" class="icon"></button>
             </div>
-            <div class="column-actions">
-                <button class="btn btn-move-left" title="Move left">←</button>
-                <button class="btn btn-move-right" title="Move right">→</button>
+            <div class="task-counter">
+                <span>Number of tasks:</span>
+                <span class="tag">${count}</span>
             </div>
         </div>
         <div class="column-body"></div>
