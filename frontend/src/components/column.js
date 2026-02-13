@@ -18,12 +18,22 @@ export function renderColumn(column, {count, onMove, onDropTask}){
             </div>
         </div>
         <div class="column-body"></div>
+        <button class="create-btn button-main">+ Add task</button>
     `;
     const body = wrap.querySelector(".column-body");
+    const createBtn = wrap.querySelector(".create-btn");
     makeDropZone(wrap, (taskId) => onDropTask(taskId, column.key));
 
     wrap.querySelector(".btn-move-left").addEventListener("click", () => onMove(column.key, "left"));
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
-    return {wrap, body};
 
+    createBtn.addEventListener("click", () => {
+        document.dispatchEvent(
+            new CustomEvent("task:create", {
+                detail: { status: column.key }
+            })
+        );
+    });
+
+    return {wrap, body};
 }

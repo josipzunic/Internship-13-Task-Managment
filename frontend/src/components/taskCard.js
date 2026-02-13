@@ -23,7 +23,7 @@ export function renderTaskCard(task) {
         <div class="line-horizontal"></div>
         <div class="task-meta">
             <div class="info-line">
-                <span>${task.assignee}</span>
+                <span>${task.priority}</span>
                 <div class="line-vertical"></div>
                 <span>${task.type}</span>
             </div>
