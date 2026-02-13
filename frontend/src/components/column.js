@@ -28,6 +28,7 @@ export function renderColumn(column, {count, onMove, onDropTask}){
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
 
     createBtn.addEventListener("click", () => {
+        console.log("Add task clicked");
         document.dispatchEvent(
             new CustomEvent("task:create", {
                 detail: { status: column.key }
