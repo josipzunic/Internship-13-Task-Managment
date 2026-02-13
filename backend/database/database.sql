@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     task_description VARCHAR(500),
     task_start_date TIMESTAMP,
     task_end_date TIMESTAMP,
-    task_estimated_duration INTERVAL,
+    task_estimated_duration NUMERIC(5,2),
     task_priority task_priority_enum NOT NULL,
     task_type task_type_enum NOT NULL, 
     task_is_archived BOOLEAN DEFAULT FALSE,
@@ -54,5 +54,5 @@ CREATE TABLE IF NOT EXISTS tasks (
         (task_is_archived = TRUE AND task_archived_at IS NOT NULL) OR
         (task_is_archived = FALSE AND task_archived_at IS NULL)
     ),
-    CONSTRAINT positive_duration CHECK (task_estimated_duration IS NULL OR task_estimated_duration > INTERVAL '0')
+    CONSTRAINT positive_duration CHECK (task_estimated_duration IS NULL OR task_estimated_duration > 0)
 );
