@@ -8,5 +8,53 @@
    position: absolute;
    right: 0;
    top: 0;
-   border-left: 1px solid var(--colo-light);
+   border-left: 1px solid var(--color-light);
+   display: flex;
+   flex-direction: column;
+   gap: 24px;
+}
+
+.modal-header {
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   justify-content: space-between;
+}
+
+.exit-button {
+   display: inline-flex;
+   align-content: center;
+   justify-content: center;
+   width: 32px;
+   height: 32px;
+   border-radius: 32px;
+   background-color: var(--color-light);
+   border: none;
+   cursor: pointer;
+}
+
+.exit-button:hover{
+   background-color: var(--hover-light);
+}
+
+.modal-title {
+   font-size: 32px;
+   color: var(--color-light);
+}
+
+.task-form {
+   display: flex;
+   flex-direction: column;
+   gap: 2px;
+}
+
+.input-title {
+   font-size: 16px;
+}
+
+.button-options {
+   display: flex;
+   flex-direction: row;
+   gap: 8px;
+   margin-top: 30px;
 }
