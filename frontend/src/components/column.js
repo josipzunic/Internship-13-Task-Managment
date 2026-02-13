@@ -1,5 +1,6 @@
+import { makeDropZone } from "../utils/dragDrop.js";
 
-export function renderColumn(column, {count, onMove}){
+export function renderColumn(column, {count, onMove, onDropTask}){
     const wrap = document.createElement("section");
     wrap.className = "column";
     wrap.dataset.key = column.key;
@@ -19,6 +20,8 @@ export function renderColumn(column, {count, onMove}){
         <div class="column-body"></div>
     `;
     const body = wrap.querySelector(".column-body");
+    makeDropZone(wrap, (taskId) => onDropTask(taskId, column.key));
+
     wrap.querySelector(".btn-move-left").addEventListener("click", () => onMove(column.key, "left"));
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
     return {wrap, body};
