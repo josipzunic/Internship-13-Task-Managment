@@ -1,7 +1,8 @@
 import { tasksApi } from "../api/taskApi.mock.js";
 import { renderColumn } from "../components/column.js";
-import { renderTaskCard } from "../components/taskCard.js";
-import { openTaskModal } from "../components/taskModal.js";
+import { renderTaskCard } from "../components/tasks/taskCard.js";
+import { openTaskModal } from "../components/tasks/taskModal.js";
+
 
 function groubByStatus(tasks){
     const result = tasks.reduce((acc, task) => {
