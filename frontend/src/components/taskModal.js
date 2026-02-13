@@ -12,32 +12,32 @@ export function openTaskModal({ status }) {
         
       <form class="task-form">
          <h3>Title:</h3>
-         <input type="text" name="title" placeholder="Title" required>
+         <input type="text" name="title" class="input-field" placeholder="Title" required>
          <h3>Description:</h3>
-         <textarea name="description"></textarea>
+         <textarea name="description" class="input-field"></textarea>
          <h3>Start date:</h3>
-         <input type="date" name="startDate">            <h3>End date:</h3>
-         <input type="date" name="endDate">
+         <input type="date" name="startDate" class="input-field">            <h3>End date:</h3>
+         <input type="date" name="endDate" class="input-field">
          <h3>Estimate hours:</h3>
-         <input type="number" name="estimateHours" min="0">
+         <input type="number" name="estimateHours" min="0" class="input-field">
          <h3>Priority:</h3>
-         <select name="priority">
+         <select name="priority" class="input-field">
             <option value="LOW">Low</option>
             <option value="MID">Middle</option>
             <option value="HIGH">High</option>
          </select>
          <h3>Type:</h3>
-         <select name="type">
+         <select name="type" class="input-field">
             <option value="FEATURE">Feature</option>
             <option value="BUGFIX">Bugfix</option>
             <option value="IMPROVEMENT">Improvement</option>
          </select>
          <h3>Asignee:</h3>
-         <input type="text" name="asignee" placeholder="Asignee">
+         <input type="text" name="assignee" placeholder="Asignee" class="input-field">
             
          <div class="button-options">
-            <button type="submit">Save</button>
-            <button type="button" class="cancel-btn">Cancel</button>
+            <button type="submit" class="button-main">Save</button>
+            <button type="button" class="cancel-btn button-main">Cancel</button>
          </div>
       </form>
       `;

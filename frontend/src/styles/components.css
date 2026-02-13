@@ -47,3 +47,11 @@
 .button-main:hover {
    background-color: var(--hover-light);
 }
+
+.input-field {
+   background-color: var(--color-light);
+   border: none;
+   border-radius: 8px;
+   padding: 8px;
+   font-size: 16px;
+}

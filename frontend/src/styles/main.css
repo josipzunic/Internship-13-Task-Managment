@@ -2,4 +2,5 @@
 @import "./components.css";
 @import "./layout.css";
 @import "./column.css";
-@import "./task.css"
+@import "./task.css";
+@import "./taskModal.css";

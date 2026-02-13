@@ -1,0 +1,12 @@
+.modal-content {
+   background-color: var(--color-purple-light);
+   padding: 20px;
+   border-radius: 8px;
+   max-width: 500px;
+   width: 400px;
+   height: 100%;
+   position: absolute;
+   right: 0;
+   top: 0;
+   border-left: 1px solid var(--colo-light);
+}
