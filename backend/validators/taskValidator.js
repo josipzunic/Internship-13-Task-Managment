@@ -60,6 +60,14 @@ const validateAndBuildUpdates = (fields) => {
     values.push(validator.transform ? validator.transform(value) : value);
   }
 
+  if (
+    fields.task_start_date != null &&
+    fields.task_end_date != null &&
+    new Date(fields.task_start_date) > new Date(fields.task_end_date)
+  ) {
+    return { error: "Task start date must be before or equal to end date." };
+  }
+
   if (updates.length === 0) {
     return { error: "No valid fields provided for update." };
   }
