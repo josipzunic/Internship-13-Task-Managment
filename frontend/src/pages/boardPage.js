@@ -23,7 +23,8 @@ export async function mountBoardPage(){
             tasksApi.getTasks(),
         ]);
 
-        const groupedTasks = groubByStatus(tasks);
+        const activeTasks = tasks.filter(task => !task.archived);
+        const groupedTasks = groubByStatus(activeTasks);
 
         for(const col of columns){
             const colTasks = groupedTasks[col.key] || [];
@@ -54,5 +55,24 @@ export async function mountBoardPage(){
         await tasksApi.createTask(formData);
         await render();
     })
+
+    document.addEventListener("column:archiveAllTasks", async (e) => {
+        const { status } = e.detail;
+        const tasks = await tasksApi.getTasks();
+        const tasksToArchive = tasks.filter(t => t.status === status && !t.archived);
+
+        await Promise.all(tasksToArchive.map(t => tasksApi.updateTask(t.id, {archived: true})));
+        await render();
+    });
+
+    document.addEventListener("column:deleteAllTasks", async (e) => {
+        const { status } = e.detail;
+        const tasks = await tasksApi.getTasks();
+        const tasksToDelete = tasks.filter(t => t.status === status);
+
+        await Promise.all(tasksToDelete.map(t => tasksApi.deleteTask(t.id)));
+        await render();
+    });
+
     await render();
 }

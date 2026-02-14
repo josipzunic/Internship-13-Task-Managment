@@ -28,18 +28,31 @@ export function renderColumn(column, {count, onMove, onDropTask}){
     `;
     const body = wrap.querySelector(".column-body");
     const createBtn = wrap.querySelector(".create-btn");
+    const archiveAll = wrap.querySelector(".archive-all");
+    const deleteAll = wrap.querySelector(".delete-all");
     makeDropZone(wrap, (taskId) => onDropTask(taskId, column.key));
 
     wrap.querySelector(".btn-move-left").addEventListener("click", () => onMove(column.key, "left"));
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
 
     createBtn.addEventListener("click", () => {
-        console.log("Add task clicked");
         document.dispatchEvent(
             new CustomEvent("task:create", {
                 detail: { status: column.key }
             })
         );
+    });
+
+    archiveAll.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("column:archiveAllTasks", {
+            detail: { status: column.key}
+        }));
+    });
+
+    deleteAll.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("column:deleteAllTasks", {
+            detail: { status: column.key}
+        }));
     });
 
     return {wrap, body};
