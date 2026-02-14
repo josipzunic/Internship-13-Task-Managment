@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { database, initDatabase } from "../database/database.js";
 import {
@@ -12,13 +14,19 @@ import {
   deleteColumnTasks,
   archiveColumnTasks,
 } from "./controllers/taskController.js";
+import { getColumns } from "./controllers/columnController.js";
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.json());
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+app.use(express.json());
+app.use(express.static(path.resolve(__dirname, "../../frontend")));
+
+app.get("/api/columns", getColumns);
 app.get("/api/tasks", getTasks);
 app.get("/api/tasks/:id", getTask);
 app.post("/api/tasks", createTask);

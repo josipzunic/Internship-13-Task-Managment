@@ -12,7 +12,11 @@ const TASK_COLUMNS = `task_id, column_id, user_id, task_title, task_description,
 const getTasks = async (_req, res) => {
   try {
     const result = await database.query(
-      `SELECT ${TASK_COLUMNS} FROM tasks WHERE task_is_archived = FALSE ORDER BY task_id ASC`,
+      `SELECT t.*, c.column_name
+       FROM tasks t
+       JOIN "columns" c ON t.column_id = c.column_id
+       WHERE t.task_is_archived = FALSE
+       ORDER BY t.task_id ASC`,
     );
     res.json(result.rows);
   } catch (error) {
