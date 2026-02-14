@@ -55,5 +55,16 @@ export async function mountBoardPage(){
         await tasksApi.createTask(formData);
         await render();
     })
+
+    document.addEventListener("task:archive", async (e) => {
+        await tasksApi.updateTask(e.detail.taskId, { archived: true });
+        await render();
+    })
+
+    document.addEventListener("task:delete", async (e) => {
+        await tasksApi.deleteTask(e.detail.taskId);
+        await render();
+    })
+
     await render();
 }
