@@ -24,8 +24,8 @@ export async function mountBoardPage(){
             tasksApi.getTasks(),
         ]);
 
-        const activeTasks = tasks.filter(task => !task.archived);
-        const groupedTasks = groubByStatus(activeTasks);
+        const unarchivedTasks = tasks.filter(task => !task.archived);
+        const groupedTasks = groubByStatus(unarchivedTasks);
 
         for(const col of columns){
             const colTasks = groupedTasks[col.key] || [];
@@ -74,6 +74,15 @@ export async function mountBoardPage(){
         await Promise.all(tasksToDelete.map(t => tasksApi.deleteTask(t.id)));
         await render();
     });
+    document.addEventListener("task:archive", async (e) => {
+        await tasksApi.updateTask(e.detail.taskId, { archived: true });
+        await render();
+    })
+
+    document.addEventListener("task:delete", async (e) => {
+        await tasksApi.deleteTask(e.detail.taskId);
+        await render();
+    })
 
     await render();
 }

@@ -4,16 +4,22 @@ export function renderTaskView(task){
     taskView.className = "task-view";
     taskView.innerHTML = `
         <ul class="modal-box">
-          <button class="x-btn">✕</button>
-          <li>Title: ${task.title}</li>
-          <li>Description: ${task.description}</li>
-          <li>Status: ${task.status}</li>
-          <li>Start: ${task.startDate}</li>
-          <li>Due: ${task.endDate}</li>
-          <li>Estimated hours: ${task.estimateHours}</li>   
-          <li>Priority: ${task.priority}</li>     
-          <li>Type: ${task.type}</li>   
-          <li>Assignee: ${task.assignee}</li>     
+          <div class="task-view-buttons">
+            <div class="archive-delete-buttons">
+                <button class="archive-button button-main">Archive</button>
+                <button class="delete-button button-main">Delete</button>
+            </div>
+            <button class="x-btn exit-button"><img src="./src/assets/exit.svg" alt="exit" class="icon"></button>
+          </div>
+          <li class="body-main">Title: ${task.title}</li>
+          <li class="body-main">Description: ${task.description}</li>
+          <li class="body-main">Status: ${task.status}</li>
+          <li class="body-main">Start: ${task.startDate}</li>
+          <li class="body-main">Due: ${task.endDate}</li>
+          <li class="body-main">Estimated hours: ${task.estimateHours}</li>   
+          <li class="body-main">Priority: ${task.priority}</li>     
+          <li class="body-main">Type: ${task.type}</li>   
+          <li class="body-main">Assignee: ${task.assignee}</li>     
         </ul>
     `;
 
@@ -26,5 +32,19 @@ export function renderTaskView(task){
 
     taskView.addEventListener("click", (e)=>{
         if(e.target === taskView)taskView.remove();
+    });
+
+    taskView.querySelector(".archive-button").addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("task:archive", {
+            detail: { taskId: task.id }
+        }));
+        taskView.remove();
+    });
+
+    taskView.querySelector(".delete-button").addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("task:delete", {
+            detail: { taskId: task.id }
+        }));
+        taskView.remove();
     });
 }
