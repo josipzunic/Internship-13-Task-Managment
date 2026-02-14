@@ -1,6 +1,9 @@
 const VALID_PRIORITIES = ["low", "mid", "high"];
 const VALID_TASK_TYPES = ["feature", "bugfix", "improvement"];
 
+const isValidTimestamp = (val) =>
+  typeof val === "string" && !isNaN(new Date(val).getTime());
+
 const fieldValidators = {
   task_title: {
     validate: (val) => typeof val === "string" && val.trim().length > 0 && val.trim().length <= 100,
@@ -13,12 +16,12 @@ const fieldValidators = {
     transform: (val) => (val === null ? null : val.trim()),
   },
   task_start_date: {
-    validate: (val) => val === null || !isNaN(new Date(val).getTime()),
-    error: "Task start date must be a valid date or null.",
+    validate: (val) => val === null || isValidTimestamp(val),
+    error: "Task start date must be a valid timestamp string or null.",
   },
   task_end_date: {
-    validate: (val) => val === null || !isNaN(new Date(val).getTime()),
-    error: "Task end date must be a valid date or null.",
+    validate: (val) => val === null || isValidTimestamp(val),
+    error: "Task end date must be a valid timestamp string or null.",
   },
   task_estimated_duration: {
     validate: (val) => val === null || (typeof val === "number" && val > 0),
