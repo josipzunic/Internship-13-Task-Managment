@@ -24,7 +24,8 @@ export async function mountBoardPage(){
             tasksApi.getTasks(),
         ]);
 
-        const groupedTasks = groubByStatus(tasks);
+        const unarchivedTasks = tasks.filter(task => !task.archived);
+        const groupedTasks = groubByStatus(unarchivedTasks);
 
         for(const col of columns){
             const colTasks = groupedTasks[col.key] || [];

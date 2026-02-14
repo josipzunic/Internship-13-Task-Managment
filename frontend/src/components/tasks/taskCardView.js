@@ -36,14 +36,14 @@ export function renderTaskView(task){
 
     taskView.querySelector(".archive-button").addEventListener("click", () => {
         document.dispatchEvent(new CustomEvent("task:archive", {
-            detail: { taskId: task.id}
+            detail: { taskId: task.id }
         }));
         taskView.remove();
     });
 
     taskView.querySelector(".delete-button").addEventListener("click", () => {
         document.dispatchEvent(new CustomEvent("task:delete", {
-            detail: { taskId: task.id}
+            detail: { taskId: task.id }
         }));
         taskView.remove();
     });
