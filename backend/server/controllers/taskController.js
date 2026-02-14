@@ -189,4 +189,87 @@ const deleteTask = async (req, res) => {
   }
 };
 
-export { getTasks, getTask, createTask, updateTask, deleteTask };
+const deleteColumnTasks = async (req, res) => {
+  try {
+    await database.query("DELETE FROM tasks WHERE column_id = $1", [
+      req.params.columnId,
+    ]);
+    res.json({ deleted: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete column tasks." });
+  }
+};
+
+const archiveColumnTasks = async (req, res) => {
+  try {
+    const result = await database.query(
+      `UPDATE tasks SET task_is_archived = TRUE, task_archived_at = NOW(), task_updated_at = NOW()
+       WHERE column_id = $1 AND task_is_archived = FALSE
+       RETURNING ${TASK_COLUMNS}`,
+      [req.params.columnId],
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to archive column tasks." });
+  }
+};
+
+const archiveTask = async (req, res) => {
+  try {
+    const result = await database.query(
+      `UPDATE tasks SET task_is_archived = TRUE, task_archived_at = NOW(), task_updated_at = NOW()
+       WHERE task_id = $1 AND task_is_archived = FALSE
+       RETURNING ${TASK_COLUMNS}`,
+      [req.params.id],
+    );
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Task not found or already archived." });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to archive task." });
+  }
+};
+
+const getArchivedTasks = async (req, res) => {
+  const { from, to } = req.query;
+
+  let query = `SELECT ${TASK_COLUMNS} FROM tasks WHERE task_is_archived = TRUE`;
+  const values = [];
+
+  if (from) {
+    if (isNaN(new Date(from).getTime())) {
+      return res.status(400).json({ error: "Invalid 'from' date." });
+    }
+    values.push(from);
+    query += ` AND task_archived_at >= $${values.length}`;
+  }
+
+  if (to) {
+    if (isNaN(new Date(to).getTime())) {
+      return res.status(400).json({ error: "Invalid 'to' date." });
+    }
+    values.push(to);
+    query += ` AND task_archived_at <= $${values.length}`;
+  }
+
+  query += " ORDER BY task_archived_at DESC";
+
+  try {
+    const result = await database.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to load archived tasks." });
+  }
+};
+export {
+  getTasks,
+  getTask,
+  createTask,
+  updateTask,
+  deleteTask,
+  archiveTask,
+  getArchivedTasks,
+  deleteColumnTasks,
+  archiveColumnTasks,
+};
