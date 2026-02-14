@@ -1,4 +1,6 @@
-import { makeDraggableTask } from "../utils/dragDrop.js";
+import { makeDraggableTask } from "../../utils/dragDrop.js";
+import { renderTaskView } from "./taskCardView.js";
+
 
 function getDeadlineClass(deadline) {
     if (!deadline) return "";
@@ -34,6 +36,11 @@ export function renderTaskCard(task) {
             </div>
         </div>
     `;
+    
     makeDraggableTask(el, task.id);
+    el.addEventListener("click", () => {
+        renderTaskView(task);
+    });
+
     return el;
 }
