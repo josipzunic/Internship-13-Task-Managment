@@ -18,22 +18,41 @@ export function renderColumn(column, {count, onMove, onDropTask}){
             </div>
         </div>
         <div class="column-body"></div>
-        <button class="create-btn button-main">+ Add task</button>
+        <div class="column-buttons">
+            <div class="column-archive-delete">
+                <button class="archive-all button-main">Archive all</button>
+                <button class="delete-all button-main">Delete all</button>
+            </div>
+            <button class="create-btn button-main">+ Add task</button>
+        </div>
     `;
     const body = wrap.querySelector(".column-body");
     const createBtn = wrap.querySelector(".create-btn");
+    const archiveAll = wrap.querySelector(".archive-all");
+    const deleteAll = wrap.querySelector(".delete-all");
     makeDropZone(wrap, (taskId) => onDropTask(taskId, column.key));
 
     wrap.querySelector(".btn-move-left").addEventListener("click", () => onMove(column.key, "left"));
     wrap.querySelector(".btn-move-right").addEventListener("click", () => onMove(column.key, "right"));
 
     createBtn.addEventListener("click", () => {
-        console.log("Add task clicked");
         document.dispatchEvent(
             new CustomEvent("task:create", {
                 detail: { status: column.key }
             })
         );
+    });
+
+    archiveAll.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("column:archiveAllTasks", {
+            detail: { status: column.key}
+        }));
+    });
+
+    deleteAll.addEventListener("click", () => {
+        document.dispatchEvent(new CustomEvent("column:deleteAllTasks", {
+            detail: { status: column.key}
+        }));
     });
 
     return {wrap, body};

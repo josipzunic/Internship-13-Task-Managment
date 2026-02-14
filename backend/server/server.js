@@ -1,10 +1,34 @@
 import express from "express";
 import dotenv from "dotenv";
 import { database, initDatabase } from "../database/database.js";
+import {
+  getTasks,
+  getTask,
+  createTask,
+  updateTask,
+  deleteTask,
+  archiveTask,
+  getArchivedTasks,
+  deleteColumnTasks,
+  archiveColumnTasks,
+} from "./controllers/taskController.js";
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+app.use(express.json());
+
+app.get("/api/tasks", getTasks);
+app.get("/api/tasks/:id", getTask);
+app.post("/api/tasks", createTask);
+app.patch("/api/tasks/:id", updateTask);
+app.delete("/api/tasks/:id", deleteTask);
+
+app.patch("/api/tasks/:id/archive", archiveTask);
+app.get("/api/tasks/archived", getArchivedTasks);
+app.delete("/api/columns/:columnId/tasks", deleteColumnTasks);
+app.patch("/api/columns/:columnId/tasks/archive", archiveColumnTasks);
 
 const startServer = async () => {
   await database.query("SELECT 1");

@@ -66,6 +66,23 @@ export async function mountBoardPage(){
         await tasksApi.deleteTask(e.detail.taskId);
         await render();
     })
+    document.addEventListener("column:archiveAllTasks", async (e) => {
+        const { status } = e.detail;
+        const tasks = await tasksApi.getTasks();
+        const tasksToArchive = tasks.filter(t => t.status === status && !t.archived);
+
+        await Promise.all(tasksToArchive.map(t => tasksApi.updateTask(t.id, {archived: true})));
+        await render();
+    });
+
+    document.addEventListener("column:deleteAllTasks", async (e) => {
+        const { status } = e.detail;
+        const tasks = await tasksApi.getTasks();
+        const tasksToDelete = tasks.filter(t => t.status === status);
+
+        await Promise.all(tasksToDelete.map(t => tasksApi.deleteTask(t.id)));
+        await render();
+    });
 
     await render();
 }
