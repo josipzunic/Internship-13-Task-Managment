@@ -36,6 +36,6 @@ you are using the application
 npm run start
 
 ```
-6. To open frontend you can use VS Code extension Live Server. Index file that runs frontend is `Internship-13-Task-Managment/frontend/index.html`
+6. To open frontend you can go to `http://localhost:PORT` in your browser
 
 
