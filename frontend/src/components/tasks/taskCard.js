@@ -1,5 +1,6 @@
 import { makeDraggableTask } from "../../utils/dragDrop.js";
 import { renderTaskView } from "./taskCardView.js";
+import { formatDate } from "../../helper/helper.js";
 
 function getDeadlineClass(deadline) {
   if (!deadline) return "";
@@ -31,7 +32,7 @@ export function renderTaskCard(task) {
             <div class="info-line">
                 ${task.assignee ? `<span>@${task.assignee}</span>` : ""}
                 <div class="line-vertical"></div>
-                ${task.endDate ? `<span>Due: ${task.endDate}</span>` : ""}
+                ${task.endDate ? `<span>Due: ${formatDate(task.endDate)}</span>` : ""}
             </div>
         </div>
     `;

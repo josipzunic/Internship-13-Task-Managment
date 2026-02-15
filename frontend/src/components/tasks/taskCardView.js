@@ -1,4 +1,5 @@
 import { renderEditTask } from "./editTask.js";
+import { formatDate } from "../../helper/helper.js";
 
 export function renderTaskView(task){
 
@@ -15,14 +16,14 @@ export function renderTaskView(task){
             <button class="x-btn exit-button"><img src="./src/assets/exit.svg" alt="exit" class="icon"></button>
           </div>
           <li class="body-main">Title: ${task.title}</li>
-          <li class="body-main">Description: ${task.description}</li>
+          <li class="body-main">Description: ${task.description ?? "—"}</li>
           <li class="body-main">Status: ${task.status}</li>
-          <li class="body-main">Start: ${task.startDate}</li>
-          <li class="body-main">Due: ${task.endDate}</li>
-          <li class="body-main">Estimated hours: ${task.estimateHours}</li>   
-          <li class="body-main">Priority: ${task.priority}</li>     
-          <li class="body-main">Type: ${task.type}</li>   
-          <li class="body-main">Assignee: ${task.assignee}</li>     
+          <li class="body-main">Start: ${formatDate(task.startDate)}</li>
+          <li class="body-main">Due: ${formatDate(task.endDate)}</li>
+          <li class="body-main">Estimated hours: ${task.estimateHours ?? "—"}</li>
+          <li class="body-main">Priority: ${task.priority}</li>
+          <li class="body-main">Type: ${task.type}</li>
+          <li class="body-main">Assignee: ${task.assignee ?? "—"}</li>
         </ul>
     `;
 
