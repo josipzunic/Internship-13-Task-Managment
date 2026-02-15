@@ -3,6 +3,7 @@
    --color-purple-light: #5451D6;
    --color-light: #E3F1FF;
    --hover-light: #c4cfda;
+   --hover-dark: #140d36;
 }
 
 * { 
@@ -18,11 +19,17 @@ body {
    padding: 40px;
 }
 
+body.light {
+   background-color: var(--color-light);
+   color: var(--color-purple-dark);
+}
+
 .body-main {
    font-size: 20px;
    font-style: normal;
    font-weight: 400;
    line-height: normal;
+   color: var(--color-light);
 }
 
 .body-small {

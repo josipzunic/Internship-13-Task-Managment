@@ -99,6 +99,7 @@ export async function mountBoardPage(){
     });
 
     document.getElementById("btnArchived").classList.remove("hidden");
+    document.getElementById("modeToggle").classList.remove("hidden");
 
     await render();
 }

@@ -71,4 +71,5 @@ export async function mountArchivePage() {
    });
 
    document.getElementById("btnArchived").classList.add("hidden");
+   document.getElementById("modeToggle").classList.add("hidden");
 }
