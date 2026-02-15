@@ -1,7 +1,6 @@
 import { makeDraggableTask } from "../../utils/dragDrop.js";
 import { renderTaskView } from "./taskCardView.js";
 
-
 function getDeadlineClass(deadline) {
     if (!deadline) return "";
 
@@ -12,7 +11,7 @@ function getDeadlineClass(deadline) {
     const diffInHours = diffInMs / (1000 * 60 * 60);
 
     if (diffInHours < 0) return "task-card--overdue";
-    if (diffInHours < 24) return "task-card--due-soon";
+    if (diffInHours < 72) return "task-card--due-soon";
     return "";
 }
 
