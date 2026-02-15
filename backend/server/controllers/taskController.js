@@ -5,6 +5,10 @@ import {
   priorityToDB,
   typeToDB,
 } from "../../models/mappers.js";
+import {
+  fieldValidators,
+  validateAndBuildUpdates,
+} from "../../validators/taskValidator.js";
 
 const getTaskById = async (taskId) => {
   const result = await database.query(
@@ -133,21 +137,30 @@ const createTask = async (req, res) => {
       userId = user.rows[0].user_id;
     }
 
+    const dbFields = {
+      column_id: columnId,
+      user_id: userId,
+      task_title: title,
+      task_description: description || null,
+      task_start_date: startDate || null,
+      task_end_date: endDate || null,
+      task_estimated_duration: estimateHours || null,
+      task_priority: priorityToDB(priority),
+      task_type: typeToDB(type),
+    };
+
+    for (const [field, value] of Object.entries(dbFields)) {
+      const validator = fieldValidators[field];
+      if (validator && value !== null && !validator.validate(value)) {
+        return res.status(400).json({ error: validator.error });
+      }
+    }
+
     const result = await database.query(
-      `INSERT INTO tasks (column_id, user_id, task_title, task_description, 
+      `INSERT INTO tasks (column_id, user_id, task_title, task_description,
       task_start_date, task_end_date, task_estimated_duration, task_priority, task_type)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING task_id`,
-      [
-        columnId,
-        userId,
-        title,
-        description || null,
-        startDate || null,
-        endDate || null,
-        estimateHours ? estimateHours : null,
-        priorityToDB(priority),
-        typeToDB(type),
-      ],
+      Object.values(dbFields),
     );
 
     const task = await getTaskById(result.rows[0].task_id);
@@ -215,22 +228,12 @@ const updateTask = async (req, res) => {
     if (updates.title !== undefined) dbUpdates.task_title = updates.title;
     if (updates.description !== undefined)
       dbUpdates.task_description = updates.description;
-    if (
-      updates.startDate !== undefined &&
-      updates.startDate !== null &&
-      updates.startDate !== ""
-    )
-      dbUpdates.task_start_date = updates.startDate;
-    if (
-      updates.endDate !== undefined &&
-      updates.endDate !== null &&
-      updates.endDate !== ""
-    )
-      dbUpdates.task_end_date = updates.endDate;
-    if (updates.estimateHours !== undefined) {
-      if (updates.estimateHours === 0) updates.estimateHours = null;
-      dbUpdates.task_estimated_duration = updates.estimateHours;
-    }
+    if (updates.startDate !== undefined)
+      dbUpdates.task_start_date = updates.startDate || null;
+    if (updates.endDate !== undefined)
+      dbUpdates.task_end_date = updates.endDate || null;
+    if (updates.estimateHours !== undefined)
+      dbUpdates.task_estimated_duration = updates.estimateHours || null;
     if (updates.priority !== undefined)
       dbUpdates.task_priority = priorityToDB(updates.priority);
     if (updates.type !== undefined)
@@ -239,13 +242,17 @@ const updateTask = async (req, res) => {
       dbUpdates.column_id = updates.column_id;
     if (updates.user_id !== undefined) dbUpdates.user_id = updates.user_id;
 
-    const fields = Object.keys(dbUpdates);
-    const values = Object.values(dbUpdates);
-    const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(", ");
+    const result = validateAndBuildUpdates(dbUpdates);
+
+    if (result.error) {
+      return res.status(400).json({ error: result.error });
+    }
+
+    const { updates: setClauses, values } = result;
 
     await database.query(
-      `UPDATE tasks SET ${setClause}, task_updated_at = NOW()
-       WHERE task_id = $${fields.length + 1}`,
+      `UPDATE tasks SET ${setClauses.join(", ")}, task_updated_at = NOW()
+       WHERE task_id = $${values.length + 1}`,
       [...values, id],
     );
 
