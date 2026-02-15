@@ -1,11 +1,7 @@
 import { database } from "../../database/database.js";
-import {
-  fieldValidators,
-  validateAndBuildUpdates,
-} from "../../validators/taskValidator.js";
+import { fieldValidators } from "../../validators/taskValidator.js";
 import {
   mapTaskToFrontend,
-  mapColumnToFrontend,
   statusToColumnName,
   priorityToDB,
   typeToDB,
@@ -76,6 +72,33 @@ const createTask = async (req, res) => {
     }
   }
 
+  const allFields = {
+    title,
+    description,
+    startDate,
+    endDate,
+    estimateHours,
+    priority,
+    type,
+    status,
+    assignee,
+  };
+
+  for (const [field, value] of Object.entries(allFields)) {
+    if (value === undefined || value === null) continue;
+
+    const validator = fieldValidators[field];
+    if (validator && !validator.validate(value)) {
+      return res.status(400).json({ error: validator.error });
+    }
+  }
+
+  if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+    return res
+      .status(400)
+      .json({ error: "Start date must be before or equal to end date." });
+  }
+
   try {
     const column = await database.query(
       `SELECT column_id FROM "columns" WHERE column_name = $1`,
@@ -124,6 +147,23 @@ const createTask = async (req, res) => {
 const updateTask = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
+
+  for (const [field, value] of Object.entries(updates)) {
+    if (value === undefined || value === null) continue;
+
+    const validator = fieldValidators[field];
+    if (validator && !validator.validate(value)) {
+      return res.status(400).json({ error: validator.error });
+    }
+  }
+
+  if (updates.startDate && updates.endDate) {
+    if (new Date(updates.startDate) > new Date(updates.endDate)) {
+      return res
+        .status(400)
+        .json({ error: "Start date must be before or equal to end date." });
+    }
+  }
 
   try {
     if (updates.status) {
@@ -181,8 +221,7 @@ const updateTask = async (req, res) => {
 
     const task = await getTaskById(id);
 
-    if (!task)
-      return res.status(404).json({ error: "Task not found" });
+    if (!task) return res.status(404).json({ error: "Task not found" });
     res.json(task);
   } catch (error) {
     console.error(error);
@@ -240,13 +279,13 @@ const archiveTask = async (req, res) => {
       [req.params.id],
     );
 
-    const task = await getTaskById(result.rows[0].task_id);
-
     if (result.rowCount === 0) {
       return res
         .status(404)
         .json({ error: "Task not found or already archived." });
     }
+
+    const task = await getTaskById(result.rows[0].task_id);
 
     res.json(task);
   } catch (error) {

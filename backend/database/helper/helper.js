@@ -1,3 +1,6 @@
+import jwt from "jsonwebtoken";
+import { mapTaskToFrontend } from "../../models/mappers";
+
 export const getTaskById = async (taskId) => {
   const result = await database.query(
     `SELECT t.*, u.username, c.column_name
@@ -13,4 +16,16 @@ export const getTaskById = async (taskId) => {
   }
 
   return mapTaskToFrontend(result.rows[0]);
+};
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+export const createJwtToken = (user) => {
+  const token = jwt.sign(
+    { userId: user.user_id, username: user.username },
+    JWT_SECRET,
+    { expiresIn: "7d" },
+  );
+
+  return token;
 };

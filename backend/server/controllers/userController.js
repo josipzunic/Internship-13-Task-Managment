@@ -1,27 +1,28 @@
 import { database } from "../../database/database.js";
-import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { userFieldValidators } from "../../validators/userValidator.js";
+import { createJwtToken } from "../../database/helper/helper.js";
 
 const SALT = 10;
-const JWT_SECRET = process.env.JWT_SECRET || "ikaqna88ypvk6t6p1sjx74y9";
 
 export const registerUser = async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username || !password)
+  if (
+    !userFieldValidators.usernameAndPasswordRequired.validate(
+      username,
+      password,
+    )
+  )
     return res
       .status(400)
-      .json({ error: "Username and password are required" });
+      .json({ error: userFieldValidators.usernameAndPasswordRequired.error });
 
-  if (username.length < 5)
-    return res
-      .status(400)
-      .json({ error: "Username must be at least 5 characters" });
+  if (!userFieldValidators.username.validate(username))
+    return res.status(400).json({ error: userFieldValidators.username.error });
 
-  if (password.length < 6)
-    return res
-      .status(400)
-      .json({ error: "Password must be at least 6 characters" });
+  if (!userFieldValidators.password.validate(password))
+    return res.status(400).json({ error: userFieldValidators.password.error });
 
   try {
     const existingUser = await database.query(
@@ -41,11 +42,7 @@ export const registerUser = async (req, res) => {
 
     const user = result.rows[0];
 
-    const token = jwt.sign(
-      { userId: user.user_id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: "7d" },
-    );
+    const token = createJwtToken(user);
 
     res.json({
       message: "User created successfully",
@@ -64,10 +61,15 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username || !password)
+  if (
+    !userFieldValidators.usernameAndPasswordRequired.validate(
+      username,
+      password,
+    )
+  )
     return res
       .status(400)
-      .json({ error: "Username and password are required" });
+      .json({ error: userFieldValidators.usernameAndPasswordRequired.error });
 
   try {
     const result = await database.query(
@@ -84,11 +86,7 @@ export const loginUser = async (req, res) => {
     if (!comparePassword)
       return res.status(401).json({ error: "Invalid credentials" });
 
-    const token = jwt.sign(
-      { userId: user.user_id, username: user.username },
-      JWT_SECRET,
-      { expiresIn: "7d" },
-    );
+    const token = createJwtToken(user);
 
     res.json({
       message: "User logged in successfully",
