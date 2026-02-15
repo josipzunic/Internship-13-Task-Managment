@@ -1,3 +1,5 @@
+import { formatDate } from "../../helper/helper.js";
+
 export function renderEditTask(task){
     const editTaskView = document.createElement("div");
     editTaskView.className = "task-view";
@@ -8,28 +10,28 @@ export function renderEditTask(task){
         <img src="./src/assets/exit.svg" alt="exit" class="icon">
         </button>
       </div>
-      
+
       <label class="body-main">Title</label>
       <input class="input" name="title" value="${task.title ?? ""}" />
-      
+
       <label class="body-main">Description</label>
       <textarea class="input" name="description">${task.description ?? ""}</textarea>
-      
+
       <label class="body-main">Status</label>
       <select class="input" name="status">
         ${["BLOCKED","TODO","IN_PROGRESS","IN_REVIEW","DONE"].map(s =>
           `<option value="${s}" ${task.status===s ? "selected":""}>${s}</option>`
         ).join("")}
         </select>
-        
+
         <label class="body-main">Start</label>
-        <input class="input" type="date" name="startDate" value="${task.startDate ?? ""}" />
-        
+        <input class="input" type="date" name="startDate" value="${formatDate(task.startDate)}" />
+
         <label class="body-main">Due</label>
-        <input class="input" type="date" name="endDate" value="${task.endDate ?? ""}" />
-        
+        <input class="input" type="date" name="endDate" value="${formatDate(task.endDate)}" />
+
         <label class="body-main">Estimate hours</label>
-        <input class="input" type="number" name="estimateHours" min="0" value="${task.estimateHours ?? 0}" />
+        <input class="input" type="number" name="estimateHours" min="0" value="${task.estimateHours ?? ""}" />
         
         <label class="body-main">Priority</label>
         <select class="input" name="priority">
