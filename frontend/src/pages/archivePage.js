@@ -1,0 +1,74 @@
+import { tasksApi } from "../api/taskApi.mock.js";
+import { renderTaskCard } from "../components/tasks/taskCard.js";
+
+export async function mountArchivePage() {
+   const boardEl = document.getElementById("board");
+   boardEl.innerHTML = `
+      <div class="archive-page">
+         <div class="archive-header">
+            <div class="archive-title-line">
+               <h2 class="archive-title">Archived Tasks</h2>
+               <button id="back-btn" class="button-main">Back to board</button>
+            </div>
+            <div class="filter">
+                <label>From: <input type="date" id="from-date"></label>
+                <label>To: <input type="date" id="to-date"></label>
+               <button id="filter-btn" class="button-main">Filter</button>
+            </div>
+         </div>
+         <div class="archive-list"></div>
+      </div>
+   `;
+
+   const tasks = await tasksApi.getTasks();
+   const list = document.querySelector(".archive-list");
+
+   const hash = window.location.hash;
+   const queryString = hash.split("?")[1];
+   const params = new URLSearchParams(queryString);
+
+   const fromParam = params.get("from");
+   const toParam = params.get("to");
+
+   if (fromParam) document.getElementById("from-date").value = fromParam;
+   if (toParam) document.getElementById("to-date").value = toParam;
+
+   const renderArchivedTasks = (from, to) => {
+      list.innerHTML = "";
+      let archivedTasks = tasks.filter(t => t.archived);
+
+      if (from && to) {
+         archivedTasks = archivedTasks.filter(t => {
+            const date = new Date(t.archivedAt);
+            return date >= new Date(from) && date <= new Date(to);
+         });
+      }
+
+      if (archivedTasks.length === 0) {
+         list.innerHTML = "<span>No archived tasks in this period.</span>";
+
+         return;
+      }
+
+      archivedTasks.forEach(task => {
+         const card = renderTaskCard(task);
+         list.appendChild(card);
+      });
+   };
+
+   renderArchivedTasks(fromParam, toParam);
+
+   document.getElementById("back-btn").addEventListener("click", () => {
+      window.location.hash = '#board';
+   });
+
+   document.getElementById("filter-btn").addEventListener("click", () => {
+      const from = document.getElementById("from-date").value;
+      const to = document.getElementById("to-date").value;
+
+      const newHash = `#archivedTasks?from=${from}&to=${to}`;
+      window.location.hash = newHash;
+   });
+
+   document.getElementById("btnArchived").classList.add("hidden");
+}
