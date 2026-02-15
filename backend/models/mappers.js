@@ -10,7 +10,7 @@ export const mapTaskToFrontend = (dbTask) => ({
   type: dbTask.task_type.toUpperCase(),
   assignee: dbTask.username,
   userId: dbTask.user_id,
-  isArchived: dbTask.task_is_archived,
+  archived: dbTask.task_is_archived,
   archivedAt: dbTask.task_archived_at,
   createdAt: dbTask.task_created_at,
   updatedAt: dbTask.task_updated_at,
