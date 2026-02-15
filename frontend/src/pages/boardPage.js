@@ -58,7 +58,10 @@ export async function mountBoardPage(){
     })
 
     document.addEventListener("task:archive", async (e) => {
-        await tasksApi.updateTask(e.detail.taskId, { archived: true });
+        await tasksApi.updateTask(e.detail.taskId, { 
+            archived: true,
+            archivedAt: new Date().toISOString()
+        });
         await render();
     })
 
@@ -66,6 +69,7 @@ export async function mountBoardPage(){
         await tasksApi.deleteTask(e.detail.taskId);
         await render();
     })
+
     document.addEventListener("column:archiveAllTasks", async (e) => {
         const { status } = e.detail;
         const tasks = await tasksApi.getTasks();
@@ -83,15 +87,10 @@ export async function mountBoardPage(){
         await Promise.all(tasksToDelete.map(t => tasksApi.deleteTask(t.id)));
         await render();
     });
-    document.addEventListener("task:archive", async (e) => {
-        await tasksApi.updateTask(e.detail.taskId, { archived: true });
-        await render();
-    })
 
-    document.addEventListener("task:delete", async (e) => {
-        await tasksApi.deleteTask(e.detail.taskId);
-        await render();
-    })
+    document.getElementById("btnArchived").addEventListener("click", () => {
+        window.location.hash = "#archivedTasks";
+    });
 
     await render();
 }
