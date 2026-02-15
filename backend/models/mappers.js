@@ -5,7 +5,7 @@ export const mapTaskToFrontend = (dbTask) => ({
   status: dbTask.column_name.toUpperCase().replace(" ", "_"),
   startDate: dbTask.task_start_date,
   endDate: dbTask.task_end_date,
-  estimatedHours: dbTask.task_estimated_duration,
+  estimateHours: dbTask.task_estimated_duration,
   priority: dbTask.task_priority.toUpperCase(),
   type: dbTask.task_type.toUpperCase(),
   assignee: dbTask.username,
