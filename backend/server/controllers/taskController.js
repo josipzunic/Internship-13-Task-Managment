@@ -3,18 +3,36 @@ import {
   fieldValidators,
   validateAndBuildUpdates,
 } from "../../validators/taskValidator.js";
+import {
+  mapTaskToFrontend,
+  mapColumnToFrontend,
+  statusToColumnName,
+  priorityToDB,
+  typeToDB,
+} from "../../models/mappers.js";
+import { getTaskById } from "../../database/helper/helper.js";
 
 const TASK_COLUMNS = `task_id, column_id, user_id, task_title, task_description,
   task_start_date, task_end_date, task_estimated_duration,
   task_priority, task_type, task_is_archived, task_archived_at,
   task_created_at, task_updated_at`;
 
-const getTasks = async (_req, res) => {
+const getTasks = async (req, res) => {
   try {
+    const archived = req.query.archived === "true";
+
     const result = await database.query(
-      `SELECT ${TASK_COLUMNS} FROM tasks WHERE task_is_archived = FALSE ORDER BY task_id ASC`,
+      `SELECT t.*, u.username, c.column_name
+      FROM tasks t
+      LEFT JOIN users u ON t.user_id = u.user_id
+      JOIN "columns" c ON t.column_id = c.column_id
+      WHERE t.task_is_archived = $1
+      ORDER BY t.task_created_at DESC`,
+      [archived],
     );
-    res.json(result.rows);
+
+    const tasks = result.rows.map(mapTaskToFrontend);
+    res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Failed to load tasks." });
   }
@@ -22,14 +40,11 @@ const getTasks = async (_req, res) => {
 
 const getTask = async (req, res) => {
   try {
-    const result = await database.query(
-      `SELECT ${TASK_COLUMNS} FROM tasks WHERE task_id = $1`,
-      [req.params.id],
-    );
-    if (result.rowCount === 0) {
+    const task = await getTaskById(req.params.id);
+    if (!task) {
       return res.status(404).json({ error: "Task not found." });
     }
-    res.json(result.rows[0]);
+    res.json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to load task." });
   }
@@ -37,23 +52,22 @@ const getTask = async (req, res) => {
 
 const createTask = async (req, res) => {
   const {
-    task_title,
-    task_description,
-    task_start_date,
-    task_end_date,
-    task_estimated_duration,
-    task_priority,
-    task_type,
-    column_id,
-    user_id,
+    title,
+    description,
+    status,
+    startDate,
+    endDate,
+    estimateHours,
+    priority,
+    type,
+    assignee,
   } = req.body;
 
   const requiredFields = {
-    task_title,
-    task_priority,
-    task_type,
-    column_id,
-    user_id,
+    title,
+    priority,
+    type,
+    status,
   };
 
   for (const [field, value] of Object.entries(requiredFields)) {
@@ -62,114 +76,116 @@ const createTask = async (req, res) => {
     }
   }
 
-  const allFields = {
-    task_title,
-    task_description,
-    task_start_date,
-    task_end_date,
-    task_estimated_duration,
-    task_priority,
-    task_type,
-    column_id,
-    user_id,
-  };
-
-  for (const [field, value] of Object.entries(allFields)) {
-    if (value === undefined) continue;
-    const validator = fieldValidators[field];
-    if (!validator) continue;
-    if (!validator.validate(value)) {
-      return res.status(400).json({ error: validator.error });
-    }
-  }
-
-  if (
-    task_start_date != null &&
-    task_end_date != null &&
-    new Date(task_start_date) > new Date(task_end_date)
-  ) {
-    return res
-      .status(400)
-      .json({ error: "Task start date must be before or equal to end date." });
-  }
-
-  const transformed = {};
-  for (const [field, value] of Object.entries(allFields)) {
-    if (value === undefined) continue;
-    const validator = fieldValidators[field];
-    transformed[field] = validator?.transform
-      ? validator.transform(value)
-      : value;
-  }
-
   try {
+    const column = await database.query(
+      `SELECT column_id FROM "columns" WHERE column_name = $1`,
+      [statusToColumnName(status)],
+    );
+
+    if (!column.rows[0])
+      return res.status(400).json({ error: "Invalid status" });
+
+    const columnId = column.rows[0].column_id;
+
+    let userId = null;
+    if (assignee) {
+      const user = await database.query(
+        `SELECT user_id FROM users WHERE username = $1`,
+        [assignee],
+      );
+
+      userId = user.rows[0].user_id;
+    }
+
     const result = await database.query(
-      `INSERT INTO tasks (task_title, task_description, task_start_date, task_end_date,
-        task_estimated_duration, task_priority, task_type, column_id, user_id)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       RETURNING ${TASK_COLUMNS}`,
+      `INSERT INTO tasks (column_id, user_id, task_title, task_description, 
+      task_start_date, task_end_date, task_estimated_duration, task_priority, task_type)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING task_id`,
       [
-        transformed.task_title,
-        transformed.task_description ?? null,
-        transformed.task_start_date ?? null,
-        transformed.task_end_date ?? null,
-        transformed.task_estimated_duration ?? null,
-        transformed.task_priority,
-        transformed.task_type,
-        transformed.column_id,
-        transformed.user_id,
+        columnId,
+        userId,
+        title,
+        description || null,
+        startDate || null,
+        endDate || null,
+        estimateHours ? estimateHours : null,
+        priorityToDB(priority),
+        typeToDB(type),
       ],
     );
-    res.status(201).json(result.rows[0]);
+
+    const task = await getTaskById(result.rows[0].task_id);
+    res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to create task." });
   }
 };
 
 const updateTask = async (req, res) => {
-  const {
-    task_title,
-    task_description,
-    task_start_date,
-    task_end_date,
-    task_estimated_duration,
-    task_priority,
-    task_type,
-    column_id,
-    user_id,
-  } = req.body;
-
-  const { updates, values, error } = validateAndBuildUpdates({
-    task_title,
-    task_description,
-    task_start_date,
-    task_end_date,
-    task_estimated_duration,
-    task_priority,
-    task_type,
-    column_id,
-    user_id,
-  });
-
-  if (error) {
-    return res.status(400).json({ error });
-  }
-
-  values.push(req.params.id);
-  const idIndex = values.length;
+  const { id } = req.params;
+  const updates = req.body;
 
   try {
-    const result = await database.query(
-      `UPDATE tasks SET ${updates.join(", ")}, task_updated_at = NOW()
-       WHERE task_id = $${idIndex}
-       RETURNING ${TASK_COLUMNS}`,
-      values,
-    );
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Task not found." });
+    if (updates.status) {
+      const column = await database.query(
+        `SELECT column_id FROM "columns" WHERE column_name = $1`,
+        [statusToColumnName(updates.status)],
+      );
+
+      if (!column.rows[0])
+        return res.status(400).json({ error: "Invalid status" });
+
+      updates.column_id = column.rows[0].column_id;
     }
-    res.json(result.rows[0]);
+
+    if (updates.assignee) {
+      const user = await database.query(
+        `SELECT user_id FROM users WHERE username = $1`,
+        [updates.assignee],
+      );
+
+      if (!user.rows[0])
+        return res
+          .status(404)
+          .json({ error: `User ${updates.assignee} was not found` });
+
+      updates.user_id = user.rows[0].user_id;
+      delete updates.assignee;
+    }
+
+    const dbUpdates = {};
+    if (updates.title) dbUpdates.task_title = updates.title;
+    if (updates.description !== undefined)
+      dbUpdates.task_description = updates.description;
+    if (updates.startDate !== undefined)
+      dbUpdates.task_start_date = updates.startDate;
+    if (updates.endDate !== undefined)
+      dbUpdates.task_end_date = updates.endDate;
+    if (updates.estimateHours !== undefined)
+      dbUpdates.task_estimated_duration = `${updates.estimateHours} hours`;
+    if (updates.priority)
+      dbUpdates.task_priority = priorityToDB(updates.priority);
+    if (updates.type) dbUpdates.task_type = typeToDB(updates.type);
+    if (updates.columnId) dbUpdates.column_id = updates.column_id;
+    if (updates.userId) dbUpdates.user_id = updates.user_id;
+
+    const fields = Object.keys(dbUpdates);
+    const values = Object.values(dbUpdates);
+    const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(", ");
+
+    await database.query(
+      `UPDATE tasks SET ${setClause}, task_updated_at = NOW()
+       WHERE task_id = $${fields.length + 1}`,
+      [...values, id],
+    );
+
+    const task = await getTaskById(id);
+
+    if (task.rowCount === 0)
+      return res.status(404).json({ error: "Task not found" });
+    res.json(task);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Failed to update task." });
   }
 };
@@ -208,7 +224,8 @@ const archiveColumnTasks = async (req, res) => {
        RETURNING ${TASK_COLUMNS}`,
       [req.params.columnId],
     );
-    res.json(result.rows);
+    const tasks = result.rows.map(mapTaskToFrontend);
+    res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Failed to archive column tasks." });
   }
@@ -222,10 +239,16 @@ const archiveTask = async (req, res) => {
        RETURNING ${TASK_COLUMNS}`,
       [req.params.id],
     );
+
+    const task = await getTaskById(result.rows[0].task_id);
+
     if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Task not found or already archived." });
+      return res
+        .status(404)
+        .json({ error: "Task not found or already archived." });
     }
-    res.json(result.rows[0]);
+
+    res.json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to archive task." });
   }
@@ -257,11 +280,39 @@ const getArchivedTasks = async (req, res) => {
 
   try {
     const result = await database.query(query, values);
-    res.json(result.rows);
+    const tasks = result.rows.map(mapTaskToFrontend);
+    res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: "Failed to load archived tasks." });
   }
 };
+
+const getTasksApproachingDeadline = async (req, res) => {
+  const daysBeforeDeadline = parseInt(req.query.days) || 3;
+
+  const query = `
+    SELECT t.*, u.username, c.column_name,
+    EXTRACT(DAY FROM(t.task_end_date - NOW())) as days_remaining
+    FROM tasks t
+    JOIN users u ON t.user_id = u.user_id
+    JOIN "columns" c ON c.column_id = t.column_id
+    WHERE 
+      t.task_is_archived = FALSE
+      AND t.task_end_date IS NOT NULL
+      AND t.task_end_date > NOW()
+      AND t.task_end_date <= NOW() + INTERVAL '${daysBeforeDeadline} days'
+    ORDER BY t.task_end_date ASC
+  `;
+
+  try {
+    const result = await database.query(query);
+    const tasks = result.rows.map(mapTaskToFrontend);
+    res.json(tasks);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to load tasks nearing deadline" });
+  }
+};
+
 export {
   getTasks,
   getTask,
@@ -272,4 +323,5 @@ export {
   getArchivedTasks,
   deleteColumnTasks,
   archiveColumnTasks,
+  getTasksApproachingDeadline,
 };
