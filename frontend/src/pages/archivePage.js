@@ -1,4 +1,4 @@
-import { tasksApi } from "../api/taskApi.mock.js";
+import { tasksApi } from "../api/taskApi.js";
 import { renderTaskCard } from "../components/tasks/taskCard.js";
 
 export async function mountArchivePage() {
@@ -20,7 +20,7 @@ export async function mountArchivePage() {
       </div>
    `;
 
-   const tasks = await tasksApi.getTasks();
+   const tasks = await tasksApi.getTasks({ archived: true });
    const list = document.querySelector(".archive-list");
 
    const hash = window.location.hash;
