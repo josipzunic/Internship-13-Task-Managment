@@ -1,16 +1,27 @@
 import { database } from "../../database/database.js";
 import {
-  fieldValidators,
-  validateAndBuildUpdates,
-} from "../../validators/taskValidator.js";
-import {
   mapTaskToFrontend,
-  mapColumnToFrontend,
   statusToColumnName,
   priorityToDB,
   typeToDB,
 } from "../../models/mappers.js";
-import { getTaskById } from "../../database/helper/helper.js";
+
+const getTaskById = async (taskId) => {
+  const result = await database.query(
+    `SELECT t.*, u.username, c.column_name
+     FROM tasks t
+     LEFT JOIN users u ON t.user_id = u.user_id
+     JOIN "columns" c ON t.column_id = c.column_id
+     WHERE t.task_id = $1`,
+    [taskId],
+  );
+
+  if (result.rowCount === 0) {
+    return null;
+  }
+
+  return mapTaskToFrontend(result.rows[0]);
+};
 
 const TASK_COLUMNS = `task_id, column_id, user_id, task_title, task_description,
   task_start_date, task_end_date, task_estimated_duration,
@@ -87,15 +98,16 @@ const createTask = async (req, res) => {
 
     const columnId = column.rows[0].column_id;
 
-    let userId = null;
-    if (assignee) {
-      const user = await database.query(
-        `SELECT user_id FROM users WHERE username = $1`,
-        [assignee],
-      );
+    const username = assignee || "guest";
+    const user = await database.query(
+      `SELECT user_id FROM users WHERE username = $1`,
+      [username],
+    );
 
-      userId = user.rows[0].user_id;
-    }
+    if (!user.rows[0])
+      return res.status(404).json({ error: `User '${username}' not found` });
+
+    const userId = user.rows[0].user_id;
 
     const result = await database.query(
       `INSERT INTO tasks (column_id, user_id, task_title, task_description, 
@@ -117,7 +129,7 @@ const createTask = async (req, res) => {
     const task = await getTaskById(result.rows[0].task_id);
     res.status(201).json(task);
   } catch (error) {
-    res.status(500).json({ error: "Failed to create task." });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -162,12 +174,12 @@ const updateTask = async (req, res) => {
     if (updates.endDate !== undefined)
       dbUpdates.task_end_date = updates.endDate;
     if (updates.estimateHours !== undefined)
-      dbUpdates.task_estimated_duration = task.task_estimated_duration;
+      dbUpdates.task_estimated_duration = updates.estimateHours;
     if (updates.priority)
       dbUpdates.task_priority = priorityToDB(updates.priority);
     if (updates.type) dbUpdates.task_type = typeToDB(updates.type);
-    if (updates.columnId) dbUpdates.column_id = updates.column_id;
-    if (updates.userId) dbUpdates.user_id = updates.user_id;
+    if (updates.column_id) dbUpdates.column_id = updates.column_id;
+    if (updates.user_id) dbUpdates.user_id = updates.user_id;
 
     const fields = Object.keys(dbUpdates);
     const values = Object.values(dbUpdates);
@@ -181,8 +193,7 @@ const updateTask = async (req, res) => {
 
     const task = await getTaskById(id);
 
-    if (!task)
-      return res.status(404).json({ error: "Task not found" });
+    if (!task) return res.status(404).json({ error: "Task not found" });
     res.json(task);
   } catch (error) {
     console.error(error);
@@ -240,14 +251,13 @@ const archiveTask = async (req, res) => {
       [req.params.id],
     );
 
-    const task = await getTaskById(result.rows[0].task_id);
-
     if (result.rowCount === 0) {
       return res
         .status(404)
         .json({ error: "Task not found or already archived." });
     }
 
+    const task = await getTaskById(result.rows[0].task_id);
     res.json(task);
   } catch (error) {
     res.status(500).json({ error: "Failed to archive task." });

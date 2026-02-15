@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { database, initDatabase } from "../database/database.js";
 import {
@@ -21,7 +23,11 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(express.json());
+app.use(express.static(path.resolve(__dirname, "../../frontend")));
 
 app.get("/api/tasks/deadline", getTasksApproachingDeadline);
 app.get("/api/tasks/archived", getArchivedTasks);

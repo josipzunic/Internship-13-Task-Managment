@@ -3,10 +3,6 @@ import {
   mapColumnToFrontend,
   statusToColumnName,
 } from "../../models/mappers.js";
-import {
-  fieldValidators,
-  validateAndBuildUpdates,
-} from "../../validators/taskValidator.js";
 
 export const getAllColumns = async (_req, res) => {
   try {
@@ -34,7 +30,7 @@ export const moveColumn = async (req, res) => {
   const columnName = statusToColumnName(key);
 
   try {
-    database.query("BEGIN");
+    await database.query("BEGIN");
 
     const current = await database.query(
       'SELECT column_id, column_position_order FROM "columns" WHERE column_name = $1',
@@ -62,17 +58,19 @@ export const moveColumn = async (req, res) => {
         .json({ error: "Cannot move column out of bounds" });
     }
 
+    const tempPosition = maxPosition + 1;
+
     await database.query(
-      'UPDATE "columns" SET column_position_order = -1 WHERE column_position_order = $1',
-      [newPosition],
+      'UPDATE "columns" SET column_position_order = $1 WHERE column_position_order = $2',
+      [tempPosition, newPosition],
     );
     await database.query(
       'UPDATE "columns" SET column_position_order = $1, column_updated_at = NOW() WHERE column_id = $2',
       [newPosition, current.rows[0].column_id],
     );
     await database.query(
-      'UPDATE "columns" SET column_position_order = $1, column_updated_at = NOW() WHERE column_position_order = -1',
-      [currentPosition],
+      'UPDATE "columns" SET column_position_order = $1, column_updated_at = NOW() WHERE column_position_order = $2',
+      [currentPosition, tempPosition],
     );
 
     await database.query("COMMIT");
@@ -85,6 +83,8 @@ export const moveColumn = async (req, res) => {
   } catch (error) {
     await database.query("ROLLBACK");
     console.error(error);
-    res.status(500).json({ error: "Failed to move column" });
+    res.status(500).json({ error: error.message });
   }
 };
+
+
