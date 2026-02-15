@@ -92,5 +92,7 @@ export async function mountBoardPage(){
         window.location.hash = "#archivedTasks";
     });
 
+    document.getElementById("btnArchived").classList.remove("hidden");
+
     await render();
 }
