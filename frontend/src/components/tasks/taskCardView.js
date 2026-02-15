@@ -1,3 +1,5 @@
+import { renderEditTask } from "./editTask.js";
+
 export function renderTaskView(task){
 
     const taskView = document.createElement("div");
@@ -6,8 +8,9 @@ export function renderTaskView(task){
         <ul class="modal-box">
           <div class="task-view-buttons">
             <div class="archive-delete-buttons">
-                <button class="archive-button button-main">Archive</button>
-                <button class="delete-button button-main">Delete</button>
+                <button class="archive-button button-main ade-button">Archive</button>
+                <button class="delete-button button-main ade-button">Delete</button>
+                <button class="edit-button button-main ade-button">Edit</button>
             </div>
             <button class="x-btn exit-button"><img src="./src/assets/exit.svg" alt="exit" class="icon"></button>
           </div>
@@ -46,5 +49,10 @@ export function renderTaskView(task){
             detail: { taskId: task.id }
         }));
         taskView.remove();
+    });
+
+    taskView.querySelector(".edit-button").addEventListener("click", () => {
+        taskView.remove();
+        renderEditTask(task);
     });
 }
