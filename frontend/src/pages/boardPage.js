@@ -49,6 +49,12 @@ export async function mountBoardPage(){
         }
     }
 
+    document.addEventListener("task:update", async (e) => {
+        const { taskId, patch } = e.detail;
+        await tasksApi.updateTask(taskId, patch);
+        await render();
+    });
+    
     document.addEventListener("task:create", async (e) => {
         const formData = await openTaskModal({ status: e.detail.status});
         if(!formData) return;
