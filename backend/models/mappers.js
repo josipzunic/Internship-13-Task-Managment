@@ -3,13 +3,13 @@ export const mapTaskToFrontend = (dbTask) => ({
   title: dbTask.task_title,
   description: dbTask.task_description,
   status: dbTask.column_name.toUpperCase().replace(" ", "_"),
-  startDate: dbTask.task_start_name,
+  startDate: dbTask.task_start_date,
   endDate: dbTask.task_end_date,
-  estimatedHours: dbTask.task_estimated_duration,
+  estimateHours: dbTask.task_estimated_duration,
   priority: dbTask.task_priority.toUpperCase(),
   type: dbTask.task_type.toUpperCase(),
   assignee: dbTask.username,
-  userId: dbTask.userId,
+  userId: dbTask.user_id,
   isArchived: dbTask.task_is_archived,
   archivedAt: dbTask.task_archived_at,
   createdAt: dbTask.task_created_at,
@@ -22,6 +22,7 @@ export const mapColumnToFrontend = (dbColumn) => ({
     dbColumn.column_name.charAt(0).toUpperCase() +
     dbColumn.column_name.slice(1),
   position: dbColumn.column_position_order - 1,
+  taskCount: Number(dbColumn.task_count) || 0
 });
 
 export const statusToColumnName = (status) =>

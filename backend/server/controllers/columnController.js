@@ -34,7 +34,7 @@ export const moveColumn = async (req, res) => {
   const columnName = statusToColumnName(key);
 
   try {
-    database.query("BEGIN");
+    await database.query("BEGIN");
 
     const current = await database.query(
       'SELECT column_id, column_position_order FROM "columns" WHERE column_name = $1',

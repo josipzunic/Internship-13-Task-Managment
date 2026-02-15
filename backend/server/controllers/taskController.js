@@ -117,6 +117,10 @@ const createTask = async (req, res) => {
         [assignee],
       );
 
+      if (!user.rows[0]) {
+        return res.status(404).json({ error: "Assignee not found" });
+      }
+
       userId = user.rows[0].user_id;
     }
 
@@ -202,12 +206,12 @@ const updateTask = async (req, res) => {
     if (updates.endDate !== undefined)
       dbUpdates.task_end_date = updates.endDate;
     if (updates.estimateHours !== undefined)
-      dbUpdates.task_estimated_duration = task.task_estimated_duration;
+      dbUpdates.task_estimated_duration = updates.estimateHours;
     if (updates.priority)
       dbUpdates.task_priority = priorityToDB(updates.priority);
     if (updates.type) dbUpdates.task_type = typeToDB(updates.type);
-    if (updates.columnId) dbUpdates.column_id = updates.column_id;
-    if (updates.userId) dbUpdates.user_id = updates.user_id;
+    if (updates.column_id) dbUpdates.column_id = updates.column_id;
+    if (updates.user_id) dbUpdates.user_id = updates.user_id;
 
     const fields = Object.keys(dbUpdates);
     const values = Object.values(dbUpdates);
@@ -258,9 +262,14 @@ const deleteColumnTasks = async (req, res) => {
 const archiveColumnTasks = async (req, res) => {
   try {
     const result = await database.query(
-      `UPDATE tasks SET task_is_archived = TRUE, task_archived_at = NOW(), task_updated_at = NOW()
-       WHERE column_id = $1 AND task_is_archived = FALSE
-       RETURNING ${TASK_COLUMNS}`,
+      `UPDATE tasks t
+       SET task_is_archived = TRUE,
+           task_archived_at = NOW(),
+           task_updated_at = NOW()
+       FROM users u
+       JOIN "columns" c ON c.column_id = t.column_id
+       WHERE t.column_id = $1 AND t.task_is_archived = FALSE
+       RETURNING t.*, u.username, c.column_name`,
       [req.params.columnId],
     );
     const tasks = result.rows.map(mapTaskToFrontend);
@@ -296,7 +305,13 @@ const archiveTask = async (req, res) => {
 const getArchivedTasks = async (req, res) => {
   const { from, to } = req.query;
 
-  let query = `SELECT ${TASK_COLUMNS} FROM tasks WHERE task_is_archived = TRUE`;
+  let query = `
+    SELECT t.*, u.username, c.column_name
+    FROM tasks t
+    LEFT JOIN users u ON t.user_id = u.user_id
+    JOIN "columns" c ON t.column_id = c.column_id
+    WHERE t.task_is_archived = TRUE
+  `;
   const values = [];
 
   if (from) {
@@ -339,12 +354,12 @@ const getTasksApproachingDeadline = async (req, res) => {
       t.task_is_archived = FALSE
       AND t.task_end_date IS NOT NULL
       AND t.task_end_date > NOW()
-      AND t.task_end_date <= NOW() + INTERVAL '${daysBeforeDeadline} days'
+      AND t.task_end_date <= NOW() + ($1 * INTERVAL '1 day')
     ORDER BY t.task_end_date ASC
   `;
 
   try {
-    const result = await database.query(query);
+    const result = await database.query(query, [daysBeforeDeadline]);
     const tasks = result.rows.map(mapTaskToFrontend);
     res.json(tasks);
   } catch (error) {
