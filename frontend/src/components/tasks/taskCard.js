@@ -2,24 +2,24 @@ import { makeDraggableTask } from "../../utils/dragDrop.js";
 import { renderTaskView } from "./taskCardView.js";
 
 function getDeadlineClass(deadline) {
-    if (!deadline) return "";
+  if (!deadline) return "";
 
-    const now = new Date();
-    const end = new Date(deadline);
+  const now = new Date();
+  const end = new Date(deadline);
 
-    const diffInMs = end - now;
-    const diffInHours = diffInMs / (1000 * 60 * 60);
+  const diffInMs = end - now;
+  const diffInHours = diffInMs / (1000 * 60 * 60);
 
-    if (diffInHours < 0) return "task-card--overdue";
-    if (diffInHours < 72) return "task-card--due-soon";
-    return "";
+  if (diffInHours < 0) return "task-card--overdue";
+  if (diffInHours < 72) return "task-card--due-soon";
+  return "";
 }
 
 export function renderTaskCard(task) {
-    const el = document.createElement("div");
-    el.className = `task-card ${getDeadlineClass(task.endDate)}`.trim();
+  const el = document.createElement("div");
+  el.className = `task-card ${getDeadlineClass(task.endDate)}`.trim();
 
-    el.innerHTML = `
+  el.innerHTML = `
         <h1 class="task-title">${task.title}</h1>
         <div class="line-horizontal"></div>
         <div class="task-meta">
@@ -35,11 +35,11 @@ export function renderTaskCard(task) {
             </div>
         </div>
     `;
-    
-    makeDraggableTask(el, task.id);
-    el.addEventListener("click", () => {
-        renderTaskView(task);
-    });
 
-    return el;
+  makeDraggableTask(el, task.id);
+  if (!task.isArchived) {
+    el.addEventListener("click", () => renderTaskView(task));
+  }
+
+  return el;
 }
