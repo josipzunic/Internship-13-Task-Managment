@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { Pool } from "pg";
+import bcrypt from "bcrypt";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -113,8 +114,17 @@ const seed = async () => {
     valuesColumn,
   );
 
+  const SALT = 10;
+
+  const seedUserHashed = await Promise.all(
+    seedUser.map(async (user) => ({
+      username: user.username,
+      password: await bcrypt.hash(user.password, SALT),
+    })),
+  );
+
   const valuesUser = [];
-  const placeholdersUser = seedUser.map((user, index) => {
+  const placeholdersUser = seedUserHashed.map((user, index) => {
     const baseIndex = index * 2;
     valuesUser.push(user.username, user.password);
     return `($${baseIndex + 1}, $${baseIndex + 2})`;

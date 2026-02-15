@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS tasks (
     task_id SERIAL PRIMARY KEY,
     column_id INT NOT NULL REFERENCES "columns"(column_id) ON DELETE CASCADE,
-    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    user_id INT REFERENCES users(user_id) ON DELETE CASCADE,
     task_title VARCHAR(100) NOT NULL,
     task_description VARCHAR(500),
     task_start_date TIMESTAMP,
