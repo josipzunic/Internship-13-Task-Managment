@@ -5,16 +5,16 @@ allows users to manage tasks for individual or multi-person projects.
 
 ## Key Features
 
--Task organisation into multiple columns according to task status
--Creating and assigning tasks to users as well as updating, deleting, and archiving tasks
--Click a task to view detailed information
--Drag-and-drop feature for moving tasks between status columns
--Light and dark mode for better user experience
+- Task organisation into multiple columns according to task status
+- Creating and assigning tasks to users as well as updating, deleting, and archiving tasks
+- Click a task to view detailed information
+- Drag-and-drop feature for moving tasks between status columns
+- Light and dark mode for better user experience
 
 ## Technologies used
 
--**Frontend**: Vanilla JS, HTML, and CSS
--**Backend**: Node JS with PostgreSQL
+- **Frontend**: Vanilla JS, HTML, and CSS
+- **Backend**: Node JS with PostgreSQL
 
 ## Usage
 
