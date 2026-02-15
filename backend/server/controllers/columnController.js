@@ -21,7 +21,7 @@ export const getAllColumns = async (_req, res) => {
     `;
     const result = await database.query(query);
     const columns = result.rows.map(mapColumnToFrontend);
-    res.json(result.rows);
+    res.json(columns);
   } catch (error) {
     res.status(500).json({ error: "Failed to load counts of tasks" });
   }

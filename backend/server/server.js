@@ -14,6 +14,8 @@ import {
   getTasksApproachingDeadline,
 } from "./controllers/taskController.js";
 import { getAllColumns, moveColumn } from "./controllers/columnController.js";
+import { getAllUsers, loginUser, registerUser } from "./controllers/userController.js";
+import { requireAuthentification } from "../middleware/authentification.js";
 dotenv.config();
 
 const app = express();
@@ -21,20 +23,23 @@ const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-app.get("/api/tasks", getTasks);
 app.get("/api/tasks/deadline", getTasksApproachingDeadline);
+app.get("/api/tasks/archived", getArchivedTasks);
+app.get("/api/tasks", getTasks);
 app.get("/api/tasks/:id", getTask);
 app.post("/api/tasks", createTask);
 app.patch("/api/tasks/:id", updateTask);
+app.patch("/api/tasks/:id/archive", archiveTask);
 app.delete("/api/tasks/:id", deleteTask);
 
-app.patch("/api/tasks/:id/archive", archiveTask);
-app.get("/api/tasks/archived", getArchivedTasks);
+app.get("/api/columns", getAllColumns);
+app.patch("/api/columns/:key/move", moveColumn);
 app.delete("/api/columns/:columnId/tasks", deleteColumnTasks);
 app.patch("/api/columns/:columnId/tasks/archive", archiveColumnTasks);
 
-app.get("/api/columns", getAllColumns);
-app.patch("api/columns/:key/move", moveColumn);
+app.post("/api/users/register", registerUser);
+app.post("/api/users/login", loginUser);
+app.get("/api/users", requireAuthentification, getAllUsers);
 
 const startServer = async () => {
   await database.query("SELECT 1");

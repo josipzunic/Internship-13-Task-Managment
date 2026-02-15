@@ -181,7 +181,7 @@ const updateTask = async (req, res) => {
 
     const task = await getTaskById(id);
 
-    if (task.rowCount === 0)
+    if (!task)
       return res.status(404).json({ error: "Task not found" });
     res.json(task);
   } catch (error) {
