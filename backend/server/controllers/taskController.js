@@ -81,6 +81,14 @@ const createTask = async (req, res) => {
     status,
   };
 
+  if (startDate && endDate) {
+    if (new Date(startDate) > new Date(endDate)) {
+      return res.status(400).json({
+        error: "Start date must be before or equal to end date.",
+      });
+    }
+  }
+
   for (const [field, value] of Object.entries(requiredFields)) {
     if (value === undefined || value === null) {
       return res.status(400).json({ error: `${field} is required.` });
@@ -98,16 +106,32 @@ const createTask = async (req, res) => {
 
     const columnId = column.rows[0].column_id;
 
-    const username = assignee || "guest";
+    let username = "guest";
+
+    if (assignee && assignee.trim() !== "") {
+      username = assignee.trim();
+    }
+
     const user = await database.query(
       `SELECT user_id FROM users WHERE username = $1`,
       [username],
     );
 
-    if (!user.rows[0])
-      return res.status(404).json({ error: `User '${username}' not found` });
+    let userId;
 
-    const userId = user.rows[0].user_id;
+    if (!user.rows[0]) {
+      const guestUser = await database.query(
+        `SELECT user_id FROM users WHERE username = 'guest'`,
+      );
+
+      if (!guestUser.rows[0]) {
+        return res.status(500).json({ error: "Guest user not configured" });
+      }
+
+      userId = guestUser.rows[0].user_id;
+    } else {
+      userId = user.rows[0].user_id;
+    }
 
     const result = await database.query(
       `INSERT INTO tasks (column_id, user_id, task_title, task_description, 
@@ -137,6 +161,14 @@ const updateTask = async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
+  if (updates.startDate && updates.endDate) {
+    if (new Date(updates.startDate) > new Date(updates.endDate)) {
+      return res.status(400).json({
+        error: "Start date must be before or equal to end date.",
+      });
+    }
+  }
+
   try {
     if (updates.status) {
       const column = await database.query(
@@ -151,35 +183,59 @@ const updateTask = async (req, res) => {
     }
 
     if (updates.assignee) {
+      let username = "guest";
+
+      if (updates.assignee && updates.assignee.trim() !== "") {
+        username = updates.assignee.trim();
+      }
+
       const user = await database.query(
         `SELECT user_id FROM users WHERE username = $1`,
-        [updates.assignee],
+        [username],
       );
 
-      if (!user.rows[0])
-        return res
-          .status(404)
-          .json({ error: `User ${updates.assignee} was not found` });
+      if (!user.rows[0]) {
+        const guestUser = await database.query(
+          `SELECT user_id FROM users WHERE username = 'guest'`,
+        );
 
-      updates.user_id = user.rows[0].user_id;
+        if (!guestUser.rows[0]) {
+          return res.status(500).json({ error: "Guest user not configured" });
+        }
+
+        updates.user_id = guestUser.rows[0].user_id;
+      } else {
+        updates.user_id = user.rows[0].user_id;
+      }
+
       delete updates.assignee;
     }
 
     const dbUpdates = {};
-    if (updates.title) dbUpdates.task_title = updates.title;
+    if (updates.title !== undefined) dbUpdates.task_title = updates.title;
     if (updates.description !== undefined)
       dbUpdates.task_description = updates.description;
-    if (updates.startDate !== undefined)
+    if (
+      updates.startDate !== undefined &&
+      updates.startDate !== null &&
+      updates.startDate !== ""
+    )
       dbUpdates.task_start_date = updates.startDate;
-    if (updates.endDate !== undefined)
+    if (
+      updates.endDate !== undefined &&
+      updates.endDate !== null &&
+      updates.endDate !== ""
+    )
       dbUpdates.task_end_date = updates.endDate;
     if (updates.estimateHours !== undefined)
       dbUpdates.task_estimated_duration = updates.estimateHours;
-    if (updates.priority)
+    if (updates.priority !== undefined)
       dbUpdates.task_priority = priorityToDB(updates.priority);
-    if (updates.type) dbUpdates.task_type = typeToDB(updates.type);
-    if (updates.column_id) dbUpdates.column_id = updates.column_id;
-    if (updates.user_id) dbUpdates.user_id = updates.user_id;
+    if (updates.type !== undefined)
+      dbUpdates.task_type = typeToDB(updates.type);
+    if (updates.column_id !== undefined)
+      dbUpdates.column_id = updates.column_id;
+    if (updates.user_id !== undefined) dbUpdates.user_id = updates.user_id;
 
     const fields = Object.keys(dbUpdates);
     const values = Object.values(dbUpdates);
