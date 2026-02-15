@@ -6,7 +6,7 @@ import {
   priorityToDB,
   typeToDB,
 } from "../../models/mappers.js";
-import { getTaskById } from "../../database/helper/helper.js";
+import { getTaskById } from "../../helper/helper.js";
 
 const TASK_COLUMNS = `task_id, column_id, user_id, task_title, task_description,
   task_start_date, task_end_date, task_estimated_duration,

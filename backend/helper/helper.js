@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { mapTaskToFrontend } from "../../models/mappers";
+import { mapTaskToFrontend } from "../models/mappers";
 
 export const getTaskById = async (taskId) => {
   const result = await database.query(

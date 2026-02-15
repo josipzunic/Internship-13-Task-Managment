@@ -1,7 +1,7 @@
 import { database } from "../../database/database.js";
 import bcrypt from "bcrypt";
 import { userFieldValidators } from "../../validators/userValidator.js";
-import { createJwtToken } from "../../database/helper/helper.js";
+import { createJwtToken } from "../../helper/helper.js";
 
 const SALT = 10;
 
