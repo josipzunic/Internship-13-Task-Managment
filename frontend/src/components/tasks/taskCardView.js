@@ -55,4 +55,5 @@ export function renderTaskView(task){
         taskView.remove();
         renderEditTask(task);
     });
+
 }

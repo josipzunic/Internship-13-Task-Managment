@@ -54,3 +54,11 @@ body.light .line-horizontal {
 body.light .line-vertical {
    background-color: var(--color-light);
 }
+
+.task-card--due-soon{
+  border: 3px solid #ff4d4d;
+}
+
+.task-card--overdue{
+  border: 3px solid #b30000;
+}
