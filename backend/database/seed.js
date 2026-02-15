@@ -27,6 +27,7 @@ const taskType = {
 };
 
 const users = [
+  { username: "guest", password: "guest123" },
   { username: "josipzunic", password: "josip123" },
   { username: "miabarada", password: "mia123" },
   { username: "davidandelictomasic", password: "davidandelic123" },

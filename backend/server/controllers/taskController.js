@@ -98,18 +98,16 @@ const createTask = async (req, res) => {
 
     const columnId = column.rows[0].column_id;
 
-    let userId = null;
-    if (assignee) {
-      const user = await database.query(
-        `SELECT user_id FROM users WHERE username = $1`,
-        [assignee],
-      );
+    const username = assignee || "guest";
+    const user = await database.query(
+      `SELECT user_id FROM users WHERE username = $1`,
+      [username],
+    );
 
-      if (!user.rows[0])
-        return res.status(404).json({ error: `User '${assignee}' not found` });
+    if (!user.rows[0])
+      return res.status(404).json({ error: `User '${username}' not found` });
 
-      userId = user.rows[0].user_id;
-    }
+    const userId = user.rows[0].user_id;
 
     const result = await database.query(
       `INSERT INTO tasks (column_id, user_id, task_title, task_description, 

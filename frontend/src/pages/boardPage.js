@@ -83,15 +83,6 @@ export async function mountBoardPage(){
         await Promise.all(tasksToDelete.map(t => tasksApi.deleteTask(t.id)));
         await render();
     });
-    document.addEventListener("task:archive", async (e) => {
-        await tasksApi.updateTask(e.detail.taskId, { archived: true });
-        await render();
-    })
-
-    document.addEventListener("task:delete", async (e) => {
-        await tasksApi.deleteTask(e.detail.taskId);
-        await render();
-    })
 
     await render();
 }
