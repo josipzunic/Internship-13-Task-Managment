@@ -162,7 +162,7 @@ const updateTask = async (req, res) => {
     if (updates.endDate !== undefined)
       dbUpdates.task_end_date = updates.endDate;
     if (updates.estimateHours !== undefined)
-      dbUpdates.task_estimated_duration = `${updates.estimateHours} hours`;
+      dbUpdates.task_estimated_duration = task.task_estimated_duration;
     if (updates.priority)
       dbUpdates.task_priority = priorityToDB(updates.priority);
     if (updates.type) dbUpdates.task_type = typeToDB(updates.type);

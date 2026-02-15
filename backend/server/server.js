@@ -11,7 +11,6 @@ import {
   getArchivedTasks,
   deleteColumnTasks,
   archiveColumnTasks,
-  getAllTasksGroupedByColumn,
   getTasksApproachingDeadline,
 } from "./controllers/taskController.js";
 import { getAllColumns, moveColumn } from "./controllers/columnController.js";
