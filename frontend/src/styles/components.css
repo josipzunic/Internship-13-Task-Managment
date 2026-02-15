@@ -53,6 +53,10 @@ body.light .button-main {
    color: var(--color-light);
 }
 
+body.light .button-main:hover {
+   background-color: var(--hover-dark);
+}
+
 .input-field {
    background-color: var(--color-light);
    border: none;
