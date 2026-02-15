@@ -3,10 +3,6 @@ import {
   mapColumnToFrontend,
   statusToColumnName,
 } from "../../models/mappers.js";
-import {
-  fieldValidators,
-  validateAndBuildUpdates,
-} from "../../validators/taskValidator.js";
 
 export const getAllColumns = async (_req, res) => {
   try {

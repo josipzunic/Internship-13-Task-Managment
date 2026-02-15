@@ -1,9 +1,5 @@
 import { database } from "../../database/database.js";
 import {
-  fieldValidators,
-  validateAndBuildUpdates,
-} from "../../validators/taskValidator.js";
-import {
   mapTaskToFrontend,
   mapColumnToFrontend,
   statusToColumnName,
